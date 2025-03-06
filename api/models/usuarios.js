@@ -14,12 +14,31 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   usuarios.init({
-    nome: DataTypes.STRING,
+    nome: {
+      type: DataTypes.STRING,
+      validate: {
+        len: {
+          args: [3, 40],
+          // Mensagem de erro
+          msg: 'O campo nome deve ter no mínimo 3 catacteres'
+        }
+      }
+    },
+    email: {
+      type: DataTypes.STRING,
+      validate: {
+       isEmail: {
+         args: true,
+         msg: 'formato do email inválido'
+       }
+      }
+     },
     senha: DataTypes.STRING
   }, {
     sequelize,
     modelName: 'Usuario',
     tableName: 'usuarios',
+    paranoid: true,
     defaultScope: {
       attributes: {
         exclude: ['senha']
