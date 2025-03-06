@@ -11,13 +11,14 @@
   "author": "Raphael Lucas Girao de Lima",
   "license": "ISC",
   "dependencies": {
+    "bcryptjs": "^3.0.2",
     "body-parser": "^1.20.1",
     "express": "^4.18.2",
     "mysql2": "^3.12.0",
     "path": "^0.12.7",
     "pg": "^8.8.0",
-    "sequelize": "^6.26.0",
-    "sequelize-cli": "^6.5.2",
+    "sequelize": "^6.37.6",
+    "sequelize-cli": "^6.6.2",
     "uuid": "^9.0.0"
   },
   "devDependencies": {

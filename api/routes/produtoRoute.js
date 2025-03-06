@@ -10,5 +10,7 @@ router
   .get('/produto/:id', (req, res) => produtoController.pegaUmPorId(req, res))
   .delete('/produto/:id',(req, res) => produtoController.exclui(req, res))
   .put('/produto/:id', (req, res) => produtoController.atualiza(req, res))
-
+ 
+ // Só para visualizar o objeto complexo do controller
+ // console.log(produtoController)
 module.exports = router
