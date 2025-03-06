@@ -27,7 +27,7 @@ class Controller {
         console.error("Erro no Controller:", erro);
         return res.status(500).json({ erro: erro.message });
     }
-}
+  }
   
 
     async exclui(req, res) {
