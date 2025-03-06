@@ -1,5 +1,3 @@
-const converteIds = require('../Utils/conversorDeStringHelper.js')
-
 class Controller {
     constructor (entidadeService) {
         this.entidadeService = entidadeService;
@@ -18,10 +16,9 @@ class Controller {
   async atualiza(req, res) {
     const { ...params } = req.params;
     const dadosAtulizados = req.body;
-    const where = converteIds(params);
 
     try {
-        const foiAtualizado = await this.entidadeService.atualizaRegistroSemTransacao(dadosAtulizados, where);
+        const foiAtualizado = await this.entidadeService.atualizaRegistroSemTransacao(dadosAtulizados, params);
         if (!foiAtualizado) {
             return res.status(400).json({ mensagem: 'Registro não foi atualizado' });
         }
@@ -36,7 +33,7 @@ class Controller {
     async exclui(req, res) {
     const { id } = req.params;
     try {
-      await this.entidadeService.excluiRegistro(Number(id));
+      await this.entidadeService.excluiRegistro(id);
       return res.status(200).json({ mensagem: `id ${id} deletado` });
     } catch (erro) {
       return res.status(500).json({ erro: erro.message });
@@ -46,7 +43,7 @@ class Controller {
   async pegaUmPorId(req, res) {
     const { id } = req.params;
     try {
-      const umRegistro = await this.entidadeService.pegaUmRegistroPorId(Number(id));
+      const umRegistro = await this.entidadeService.pegaUmRegistroPorId(id);
       return res.status(200).json(umRegistro);
     } catch (erro) {
       return res.status(500).json({ erro: erro.message });
