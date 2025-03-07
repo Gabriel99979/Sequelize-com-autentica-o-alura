@@ -106,3 +106,113 @@ Resumo
 Se um hacker tentar usar o hash diretamente como senha, o login falhará.
 Isso ocorre porque bcrypt.compare() espera um texto puro para gerar um novo hash e comparar com o armazenado.
 No entanto, um hacker pode tentar quebrar os hashes fora do sistema, então medidas extras de segurança são recomendadas.
+
+Você consegue criar o usuário sem passar o ID porque o ID está sendo gerado manualmente no código antes de ser enviado ao banco.
+
+No seu UsuarioService, você tem essa linha dentro do método criaRegistro:
+
+js
+Copiar
+Editar
+const novoUsuario = await super.criaRegistro({
+  id: uuidv4(),  // Gerando o ID manualmente
+  nome: dto.nome,
+  email: dto.email,
+  senha: senhaHash
+});
+Aqui, o UUID está sendo gerado antes do Sequelize salvar os dados, então mesmo que o banco não esteja gerando IDs automaticamente, isso não afeta a criação do usuário.
+
+Mas por que isso funciona se a migração tem Sequelize.UUID como defaultValue?
+O problema está exatamente nesse defaultValue: Sequelize.UUID que você colocou na migração da tabela usuarios.
+
+js
+Copiar
+Editar
+id: {
+  allowNull: false,
+  primaryKey: true,
+  type: Sequelize.UUID,
+  defaultValue: Sequelize.UUID  // ⚠ Isso NÃO gera um UUID automaticamente!
+}
+⚠ Isso não cria um UUID automaticamente. O Sequelize.UUID apenas define que a coluna é do tipo UUID, mas não gera valores automaticamente.
+
+Se você removesse o uuidv4() no UsuarioService, o banco esperaria que você passasse um ID manualmente, pois ele não está gerando um por padrão.
+
+Por que a tabela produtos funciona diferente?
+Na migração de produtos, você usou:
+
+js
+Copiar
+Editar
+id: {
+  primaryKey: true,
+  allowNull: false,
+  type: Sequelize.UUID,
+  defaultValue: Sequelize.UUIDV4  // ✅ Agora o banco gera automaticamente o UUID
+}
+✅ Aqui, o banco gera automaticamente um UUID v4 se nenhum ID for informado.
+
+Conclusão
+O usuário está sendo criado sem passar um ID porque o código já está gerando o UUID com uuidv4() antes de salvar no banco.
+A migração da tabela usuarios não gera UUIDs automaticamente, porque defaultValue: Sequelize.UUID não faz isso.
+Se você quiser que o banco gere os IDs automaticamente, precisa alterar a migração de usuarios para Sequelize.UUIDV4, como fez na tabela produtos.
+O que fazer para corrigir isso?
+Se você quer que o banco gere automaticamente os UUIDs, siga um desses caminhos:
+
+1️⃣ Alterar a migração para usar Sequelize.UUIDV4, removendo o uuidv4() do código:
+
+js
+Copiar
+Editar
+id: {
+  allowNull: false,
+  primaryKey: true,
+  type: Sequelize.UUID,
+  defaultValue: Sequelize.UUIDV4 // ✅ Agora o banco gera automaticamente
+}
+Depois disso, no UsuarioService, você pode simplesmente fazer:
+
+js
+Copiar
+Editar
+const novoUsuario = await super.criaRegistro({
+  nome: dto.nome,
+  email: dto.email,
+  senha: senhaHash
+});
+E o banco gerará o UUID automaticamente.
+
+2️⃣ Manter o uuidv4() no código e corrigir a migração para remover defaultValue:
+
+js
+Copiar
+Editar
+id: {
+  allowNull: false,
+  primaryKey: true,
+  type: Sequelize.UUID
+}
+Assim, o banco não tenta gerar um ID e aceita o que seu código já está gerando.
+
+Qual é a melhor opção?
+Se quiser que o banco cuide dos UUIDs automaticamente, use a opção 1 (alterando para Sequelize.UUIDV4).
+
+Se quiser que o código cuide dos UUIDs e tenha controle sobre eles antes de salvar no banco, use a opção 2 (mantendo uuidv4() no código).
+
+Você disse:
+Ambos estão certos
+O ChatGPT disse:
+Sim, ambos estão corretos! A escolha entre eles depende da estratégia que você deseja adotar para a geração dos UUIDs.
+
+✅ Quando usar uuidv4() no código?
+Se você quiser garantir que o UUID seja gerado antes mesmo de salvar no banco.
+Se precisar do UUID para alguma lógica antes de persistir os dados (ex: criar um relacionamento antes da inserção).
+Se quiser manter consistência no código sem depender de configurações do banco de dados.
+✅ Quando usar Sequelize.UUIDV4 no banco?
+Se preferir delegar a responsabilidade da geração do UUID ao banco.
+Se quiser reduzir a lógica na aplicação e evitar gerar IDs manualmente.
+Se estiver lidando com um ambiente onde o banco gerencia os identificadores de forma padronizada.
+🚀 Resumo:
+Sequelize.UUIDV4 → O banco gera o UUID automaticamente.
+uuidv4() no código → O UUID é gerado antes da inserção no banco.
+Ambas as abordagens são corretas, e a melhor escolha depende da sua necessidade! 🚀
