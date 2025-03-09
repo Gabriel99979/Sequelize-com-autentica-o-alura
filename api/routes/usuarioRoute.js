@@ -1,8 +1,12 @@
 const { Router } = require('express')
 const UsuarioController = require('../controllers/usuarioController.js')
 const usuarioController = new UsuarioController()
+// Adicionando a middleware
+const autenticado = require('../middleware/autenticado.js');
 
 const router = Router()
+
+router.use(autenticado);
 
 router
   .post('/usuario', (req, res) => usuarioController.criaNovo(req, res))
