@@ -4,6 +4,7 @@ const authService = new AuthService();
 
 class AuthController {
     async login(req, res){
+        console.log(req.body);
         const { email, senha } = req.body;
 
         try{

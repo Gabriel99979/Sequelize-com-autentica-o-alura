@@ -3,9 +3,9 @@ const { compare } = require('bcryptjs')
 const { sign } = require('jsonwebtoken')
 const jsonSecret = require('../config/jsonSecret.js')
 
-class AuthService extends Service {
+class AuthService {
     async login(dto) {
-        const usuario = await dataSource[Usuario].findOne({
+        const usuario = await dataSource.Usuario.findOne({
             attributes: ['id', 'email', 'senha'], 
             where: {
                 email: dto.email
@@ -13,10 +13,10 @@ class AuthService extends Service {
         })
 
         if(!usuario) {
-            throw new Error('Usuario não cadastrado');
+            throw new Error('Usuario ou senha inválido');
         }
 
-        const senhasIguais = compare(dto.senha, usuario.senha);
+        const senhasIguais = await compare(dto.senha, usuario.senha);
         // Se for falso gera um erro e vamos colocar uma mensagem genérica para erro aumentando a segurança
         if(!senhasIguais) {
             throw new Error('Usuario ou senha inválido')

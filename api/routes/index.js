@@ -7,6 +7,7 @@ const auth = require('./authRoute.js')
 module.exports = app => {
   app.use(
     bodyParser.json(),
+    auth,
     produto,
     usuario
   )
