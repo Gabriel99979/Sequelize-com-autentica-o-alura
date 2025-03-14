@@ -36,3 +36,7 @@
 
 // Vamos agora colocar os services e controllers da role
 // Podemos agora verificar se nosso cadastro está funcionando
+
+// Vamos criar nosso crud de permissao
+
+// npx sequelize model:create --name permissoes --attributes nome:string,descricao:string

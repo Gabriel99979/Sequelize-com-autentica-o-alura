@@ -15,7 +15,7 @@ class AuthService {
         if(!usuario) {
             throw new Error('Usuario ou senha inválido');
         }
-
+       
         const senhasIguais = await compare(dto.senha, usuario.senha);
         // Se for falso gera um erro e vamos colocar uma mensagem genérica para erro aumentando a segurança
         if(!senhasIguais) {
