@@ -14,8 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     preco: DataTypes.FLOAT
   }, {
     sequelize,
-    tabelName: 'produtos',
-    modelName: 'Produto',
+    modelName: 'produtos',
   })
   return produtos
 }

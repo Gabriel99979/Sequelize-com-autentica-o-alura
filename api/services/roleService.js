@@ -3,7 +3,7 @@ const { v4: uuidv4 } = require('uuid');
 
 class RoleService extends Service {
     constructor() {
-        super('Roles');
+        super('roles');
       }
 
       async criaRegistro(dto) {

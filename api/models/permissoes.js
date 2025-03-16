@@ -10,7 +10,16 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate(models) {
-      // define association here
+      permissoes.belongsToMany(models.roles, {
+        through: models.roles_permissoes,
+        as: 'roles_das_permissoes',
+        foreignKey: 'permissao_id'
+      }),
+      permissoes.belongsToMany(models.usuarios, {
+        through: models.usuarios_permissoes,
+        as: 'usuarios_com_permissoes',
+        foreignKey: 'permissao_id'
+      })
     }
   }
   permissoes.init({
@@ -18,8 +27,7 @@ module.exports = (sequelize, DataTypes) => {
     descricao: DataTypes.STRING
   }, {
     sequelize,
-    modelName: 'Permissao',
-    tableName: 'permissoes'
+    modelName: 'permissoes'
   });
   return permissoes;
 };

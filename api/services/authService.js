@@ -5,7 +5,7 @@ const jsonSecret = require('../config/jsonSecret.js')
 
 class AuthService {
     async login(dto) {
-        const usuario = await dataSource.Usuario.findOne({
+        const usuario = await dataSource.usuarios.findOne({
             attributes: ['id', 'email', 'senha'], 
             where: {
                 email: dto.email

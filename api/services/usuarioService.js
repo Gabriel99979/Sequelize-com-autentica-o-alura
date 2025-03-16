@@ -4,7 +4,7 @@ const { v4: uuidv4 } = require('uuid');
 
 class UsuarioService extends Service {
   constructor() {
-    super('Usuario');
+    super('usuarios');
   }
 
   async criaRegistro(dto) {
