@@ -1,13 +1,11 @@
 const { Router } = require('express');
 const RoleController = require('../controllers/roleController.js')
 
-const roleController = new RoleController()
-
-const autenticado = require('../middleware/autenticado.js')
+const roleController = new RoleController();
 
 const router = Router()
 
-router.use(autenticado);
+
 
 router
     .post('/roles', (req, res) => roleController.criaNovo(req, res))
