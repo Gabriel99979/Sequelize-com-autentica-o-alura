@@ -9,7 +9,7 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.INTEGER
       },
-      roles_id: {
+      role_id: { // Alterado de "roles_id" para "role_id"
         type: Sequelize.UUID,
         references: {
           model: 'roles',

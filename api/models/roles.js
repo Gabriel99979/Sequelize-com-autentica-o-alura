@@ -13,7 +13,8 @@ module.exports = (sequelize, DataTypes) => {
       roles.belongsToMany(models.permissoes, {
         through: models.roles_permissoes,
         as: 'permissoes_das_roles',
-        foreignKey: 'role_id'
+        foreignKey: 'role_id', // Garante que Sequelize use 'role_id'
+        otherKey: 'permissao_id' // Define corretamente a chave secundária
       }),
       roles.belongsToMany(models.usuarios, {
         through: models.usuarios_roles,
