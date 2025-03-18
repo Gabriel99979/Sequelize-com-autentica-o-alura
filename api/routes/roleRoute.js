@@ -6,7 +6,6 @@ const roleController = new RoleController();
 const router = Router()
 
 
-
 router
     .post('/roles', (req, res) => roleController.criaNovo(req, res))
     .get('/roles', (req, res) => roleController.pegaTodos(req, res))

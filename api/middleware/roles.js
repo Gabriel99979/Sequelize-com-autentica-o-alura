@@ -1,7 +1,7 @@
 const dataSource = require('../models');
+
 const roles = (listaRoles) => {
     return async ( req, res, next ) => {
-        console.log(req.user)
         const { usuarioId } = req
 
         const usuario = await dataSource.usuarios.findOne({
@@ -16,7 +16,7 @@ const roles = (listaRoles) => {
                 id: usuarioId
             }
         })
-
+       
         if (!usuario) {
             return res.status(401).send('Usuario não cadastrado')
         }
@@ -24,7 +24,7 @@ const roles = (listaRoles) => {
         const rolesCadastradas = usuario.roles_do_usuario
         .map((role) => role.nome)
         .some((role) => listaRoles.includes(role))
-
+        
         if(!rolesCadastradas) {
             return res.status(401).send('Usuario não possui acesso a essa rota')
         }

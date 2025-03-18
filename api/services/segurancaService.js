@@ -2,6 +2,7 @@ const dataSource = require('../models')
 const Sequelize = require('sequelize');
 
 class SegurancaService {
+    
     async cadastrarAcl(dto) {
         const usuario = await dataSource.usuarios.findOne({
             include: [
