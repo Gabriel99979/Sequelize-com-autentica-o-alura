@@ -1,35 +1,54 @@
 const Service = require('./Service.js');
 const { hash } = require('bcryptjs');
-const { v4: uuidv4 } = require('uuid'); 
+const { v4: uuidv4 } = require('uuid');
+const logger = require('../Utils/logger'); // Supondo que você tenha um arquivo de configuração de logger
 
 class UsuarioService extends Service {
   constructor() {
     super('usuarios');
   }
 
+  // Criação do registro de usuário
   async criaRegistro(dto) {
-    const usuario = await this.pegaUmRegistro({
-      email: dto.email 
+    // Validação para garantir que os dados obrigatórios sejam fornecidos
+    if (!dto.nome || !dto.email || !dto.senha) {
+      logger.error('Dados obrigatórios ausentes para criação do usuário');
+      throw new Error('Nome, email e senha são obrigatórios');
+    }
+
+    // Verifica se o usuário já existe com o mesmo email
+    const usuarioExistente = await this.pegaUmRegistro({
+      email: dto.email
     });
 
-    if (usuario) {
+    if (usuarioExistente) {
+      logger.error(`Usuário já cadastrado: ${dto.email}`);
       throw new Error('Usuário já cadastrado');
     }
-    
+
     try {
-      // Hash da senha com fator de custo 8
+      // Criação do hash da senha
       const senhaHash = await hash(dto.senha, 8);
-      // Gerando um UUID V4 para o ID do usuário
+
+      // Geração do UUID V4 para o ID do usuário
       const novoUsuario = await super.criaRegistro({
-        id: uuidv4(), 
+        id: uuidv4(),
         nome: dto.nome,
         email: dto.email,
         senha: senhaHash
       });
 
-      return novoUsuario;
+      // Log de sucesso na criação do usuário
+      logger.info(`Usuário criado com sucesso: ${novoUsuario.email}`);
+
+      return {
+        status: 'success',
+        data: novoUsuario
+      };
 
     } catch (error) {
+      // Log de erro na criação do usuário
+      logger.error(`Erro ao cadastrar usuário: ${error.message}`);
       throw new Error('Erro ao cadastrar o usuário');
     }
   }

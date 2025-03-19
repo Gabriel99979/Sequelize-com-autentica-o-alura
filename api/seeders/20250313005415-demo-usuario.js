@@ -11,8 +11,8 @@ module.exports = {
         nome: 'gabriel',
         email: 'gabrielteste@email.com',
         senha: await hash('1234', 8),
-        createdAt: '2025-03-12 22:02:10',
-        updatedAt: '2025-03-12 22:02:15',
+        createdAt: new Date(),
+        updatedAt: new Date(),
       }
      ], {});
   

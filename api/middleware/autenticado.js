@@ -1,28 +1,63 @@
-// Serve para verificar se nossa secret é válida
-const { verify, decode } = require('jsonwebtoken');
-const jsonSecret = require('../config/jsonSecret.js')
-// O next serve para continuar caso o token seja válido
-module.exports = async (req, res, next) => {
-    const token = req.headers.authorization
+const { verify, decode, JsonWebTokenError } = require('jsonwebtoken');
+const jsonSecret = require('../config/jsonSecret.js');
+const redis = require('../config/redisClient.js'); // Importa o Redis Client
 
-    if(!token){
-        return res.status(401).send('Access token não informado')
+module.exports = async (req, res, next) => {
+    const token = req.headers.authorization;
+    
+    if (!token) {
+        return res.status(401).send('Access token não informado');
     }
-    // Vamos pegar o hash do token sem o bearer que vem, para isso precisaremos desestruturar
-    const [, accessToken] = token.split(" ");
+
+    // Desestruturar o token para pegar a parte após o 'Bearer'
+    const [, accessToken] = token.split(' ');
 
     try {
-        verify(accessToken, jsonSecret.secret);
-        // Vamos passar as informações do usuário para a requisição
-        const { id, email } = await decode(accessToken);
-        // Vamos adicionar na requisição agora para saber o que o usuário está fazendo para ter controle de acesso
-        req.usuarioId = id;
-        req.usuarioEmail = email;
+        // Verifica a validade do Access Token
+        const decoded = verify(accessToken, jsonSecret.secret);
 
-        // Vamos continuar
+        // Adiciona os dados do usuário no objeto da requisição
+        req.usuarioId = decoded.id;
+        req.usuarioEmail = decoded.email;
+
+        // Se o token for válido, continua a execução
         return next();
-    } catch(error){
-        res.status(401).send('Usuario não autorizado');
-    }
 
-}
+    } catch (error) {
+        // Se o token expirou, tenta renovar com o Refresh Token
+        if (error instanceof JsonWebTokenError && error.message === 'jwt expired') {
+            // Recuperar o Refresh Token do cabeçalho ou do corpo da requisição
+            const refreshToken = req.headers['x-refresh-token'];
+
+            if (!refreshToken) {
+                return res.status(401).send('Refresh token não informado');
+            }
+
+            try {
+                // Verifica a validade do Refresh Token
+                const decodedRefresh = verify(refreshToken, jsonSecret.secret);
+                const storedToken = await redis.get(`refresh:${decodedRefresh.id}`);
+
+                if (!storedToken || storedToken !== refreshToken) {
+                    return res.status(401).send('Refresh token inválido ou expirado');
+                }
+
+                // Se o Refresh Token for válido, gera um novo Access Token
+                const newAccessToken = sign(
+                    { id: decodedRefresh.id, email: decodedRefresh.email },
+                    jsonSecret.secret,
+                    { expiresIn: '1d' }
+                );
+
+                // Retorna o novo Access Token
+                return res.status(200).send({ accessToken: newAccessToken });
+
+            } catch (refreshError) {
+                return res.status(401).send('Erro ao renovar Access Token com Refresh Token');
+            }
+        }
+
+        // Se o erro não for de expiração do Access Token, retorna erro 401
+        return res.status(401).send('Usuário não autorizado');
+    }
+};

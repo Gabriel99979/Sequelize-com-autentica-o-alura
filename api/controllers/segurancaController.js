@@ -1,4 +1,5 @@
 const SegurancaService = require('../services/segurancaService.js');
+const logger = require('../Utils/logger'); // Supondo que você tenha um arquivo de logger configurado
 
 const segurancaService = new SegurancaService();
 
@@ -17,7 +18,7 @@ class SegurancaController {
 
             return res.status(201).send(acl);
         } catch (error) {
-            console.error('Erro ao cadastrar ACL:', error);
+            logger.error('Erro ao cadastrar ACL:', error);  // Logando o erro
             return res.status(400).send({ message: error.message || 'Erro ao processar a solicitação.' });
         }
     }
@@ -34,7 +35,7 @@ class SegurancaController {
 
             return res.status(201).send(permissoesRole);
         } catch (error) {
-            console.error('Erro ao cadastrar permissões para a role:', error);
+            logger.error('Erro ao cadastrar permissões para a role:', error);  // Logando o erro
             return res.status(400).send({ message: error.message || 'Erro ao processar a solicitação.' });
         }
     }
